@@ -1,7 +1,7 @@
 # VIBE CODE SESSION — Grok-Build Complete Setup
 
 > Token-min · Def: GSD · Spec: OpenSpec · BMAD · GSD  
-> **Tok** (approx): JSON ≈ **2342** · MD ≈ **941** · method: chars/4 | words×1.3
+> **Tok** (approx): JSON ≈ **2768** · MD ≈ **1191** · method: chars/4 | words×1.3
 
 ## 0. Core
 | Key | Val |
@@ -24,7 +24,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 ```
 ```scss
-// _viewport.scss
 input, textarea, select { font-size: 16px; }
 @media (hover: none) and (pointer: coarse) {
   input, textarea, select { font-size: 16px; }
@@ -59,32 +58,46 @@ When using Azure key → force **high-end** output:
 **Model**: prefer flagship Azure deployment (`azure/<flagship>`)  
 **Alias**: `vibe-max` in proxy config
 
-**System boost** (prepend to every build/spec call):
-```
-You are a senior staff engineer and product designer.
-Produce production-ready, polished, complete output.
-Prefer clarity, correctness, accessibility, and modern standards.
-No placeholders, no TODOs, no incomplete stubs unless explicitly asked.
-Match prismic tokens, viewport rules, and Grok-Build scaffold exactly.
-```
-
-**Rules**
-- Build + Spec phases → always `quality=max`
-- Never emit incomplete code under max mode
-- Prefer full files over diffs
-- Viewport anti-zoom + 16px inputs are non-negotiable
+**System boost**: senior staff engineer + production-ready, no stubs, match prismic + viewport + scaffold.
 
 **SDK**
 ```python
 from litellm import completion
-r = completion(
-  model="azure/<flagship-deployment>",
-  messages=[...],
-  temperature=0.3,
-  max_tokens=8192,
-  top_p=0.9,
-)
+r = completion(model="azure/<flagship-deployment>", messages=[...], temperature=0.3, max_tokens=8192, top_p=0.9)
 ```
+
+## 0.4 Local Data Container (privacy)
+When using **cloud Azure API key**, user local data + inputs stay on-device.
+
+```
+.vibe/local/          ← vibe-local-vault
+├── inputs/           # user typed / pasted inputs
+├── uploads/          # files user attached
+├── session-cache/    # agent session scratch
+├── dom-snapshots/    # BrowserOS / snapDOM captures
+└── env.local         # non-secret local overrides
+```
+
+**Rules**
+- Azure/LiteLLM receives **prompt text only** — no filesystem sync
+- Never send raw `.env`, vault paths, keys, or unapproved uploads
+- Only redacted/scoped excerpts the task needs
+- BrowserOS-neo + DOM capture remain local unless user opts in
+- API key = cloud auth only; it does **not** open the local vault
+
+**Scaffold**
+```
+.vibe/local/**  → gitignored
+.gitignore      → .vibe/local/ · .env · .env.local · *.pem · *.key
+```
+
+**Boundary**
+| May send to LLM | Never send |
+|-----------------|------------|
+| Task prompt | Raw .env / keys |
+| User-approved attachments | Full local vault |
+| Redacted context | Unapproved uploads |
+| | Private session-cache |
 
 ## 1. Phase Loop
 ```
@@ -93,82 +106,36 @@ GRILL → MAP → SPEC → BUILD → DEPLOY
 1. GRILL-ME.md → shared understanding  
 2. Wayfinder → ROADMAP + tickets  
 3. GSD (def): discuss → plan → execute → verify → ship  
-4. Build (scaffold below)  
+4. Build (scaffold + viewport + vault)  
 5. CF Pages (± SW)
 
 ## 2. Grok-Build Scaffold
 ```
 /
-├── index.html          # viewport meta locked
+├── index.html
 ├── package.json
 ├── vite.config.ts
-├── tsconfig.json
 ├── .env.example
+├── .gitignore
+├── .vibe/local/     # gitignored vault
 ├── public/
-│   ├── favicon.ico
-│   ├── robots.txt
-│   └── manifest.webmanifest
 └── src/
     ├── main.tsx
     ├── App.tsx
     ├── routes/
     ├── components/
-    ├── hooks/
-    ├── lib/
-    ├── assets/
     └── styles/
-        ├── _tokens.scss    # prismic tokens
-        ├── _viewport.scss  # anti-zoom
-        ├── _base.scss
+        ├── _tokens.scss
+        ├── _viewport.scss
         └── main.scss
-```
-
-### index.html head (required)
-```html
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#2BBE8B">
-<title>{{app_name}}</title>
-<link rel="icon" href="/favicon.ico">
 ```
 
 ### Scripts
 ```
-dev          → vite
-build        → tsc -b && vite build
-preview      → vite preview
-deploy:pages → wrangler pages deploy dist
-deploy:full  → pages + worker
+dev → vite | build → tsc -b && vite build | deploy:pages → wrangler pages deploy dist
 ```
 
-### .env.example
-```
-AZURE_API_KEY=
-AZURE_API_BASE=
-AZURE_API_VERSION=2024-08-01-preview
-VITE_API_URL=
-DATABASE_URL=
-```
-
-## 3. Prismic Tokens (CSS vars)
-```scss
-:root {
-  --accent: #2BBE8B; --ink: #151515; --ink-soft: #505050;
-  --bg: #FFF; --muted: #A4A4A4; --line: rgba(238,238,238,1);
-  --space-1:4px … --space-8:96px;
-  --radius-sm:2px; --radius-md:8px; --radius-lg:12px; --radius-pill:999px;
-  --max-w: 1280px;
-}
-```
-
-## 4. IDE Routing
-```
-/vibe       → session
-/vibe/ade   → ADE
-/vibe/ai    → LiteLLM Azure IDE
-```
-
-## 5. Pre-ship Checks
+## 3. Pre-ship Checks
 - [ ] viewport meta present + correct
 - [ ] input/textarea/select ≥ 16px
 - [ ] no maximum-scale / user-scalable=no
@@ -179,16 +146,19 @@ DATABASE_URL=
 - [ ] CF Pages deploy works
 - [ ] quality=max used for build/spec
 - [ ] flagship Azure deployment selected
+- [ ] local vault present (.vibe/local)
+- [ ] .vibe/local gitignored
+- [ ] no local vault path in LLM prompts by default
 
-## 6. Quick Start
+## 4. Quick Start
 ```
 1. /grill-me <idea>
 2. Wayfinder → map + tickets
 3. /gsd-workflow
-4. Scaffold (above) + apply _viewport.scss + _tokens.scss
+4. Scaffold + _viewport.scss + _tokens.scss + .vibe/local
 5. pnpm i && pnpm dev
 6. Deploy CF Pages (± SW)
 ```
 
 ---
-*grok-build mode · viewport-locked · Azure-LiteLLM ready*
+*grok-build · viewport-locked · Azure-LiteLLM · local-vault privacy*
