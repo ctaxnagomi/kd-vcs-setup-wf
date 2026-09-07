@@ -1,1 +1,234 @@
-PLACEHOLDER
+{
+  "id": "vibe-code-session",
+  "ver": "2.1",
+  "mode": "grok-build",
+  "tok": {
+    "json": 2342,
+    "md": 941,
+    "unit": "approx-gpt4o",
+    "method": "chars/4|words*1.3"
+  },
+  "def": "GSD",
+  "spec_kits": ["GSD", "OpenSpec", "BMAD"],
+  "learn": ["GRILL-ME.md", "Wayfinder"],
+  "uiux": {
+    "src": "prismic.io",
+    "tokens": {
+      "accent": "#2BBE8B",
+      "ink": "#151515",
+      "ink_soft": "#505050",
+      "bg": "#FFFFFF",
+      "muted": "#A4A4A4",
+      "line": "rgba(238,238,238,1)",
+      "space": [4, 8, 16, 24, 32, 48, 64, 96],
+      "radius": {"sm": 2, "md": 8, "lg": 12, "pill": 999},
+      "type": {"display": "56/700", "h": "40/500", "body": "18/500", "sm": "14/500"},
+      "layout": {"max": 1280, "cols": 12, "gutter": 24, "bp": [768, 1024]},
+      "motion": {"micro": 150, "sm": 300, "md": 800}
+    },
+    "viewport": {
+      "meta": "width=device-width, initial-scale=1, viewport-fit=cover",
+      "anti_zoom": {
+        "rule": "font-size >= 16px on all inputs/textarea/select",
+        "css": "input,textarea,select{font-size:16px} @media(hover:none)and(pointer:coarse){input,textarea,select{font-size:16px}}",
+        "touch_action": "manipulation",
+        "safe_area": "env(safe-area-inset-*)"
+      },
+      "forbid": ["maximum-scale=1", "user-scalable=no"]
+    }
+  },
+  "stack": {
+    "core": "tanstack",
+    "fw": "tanstack",
+    "web_mobile": ["react-native", "bootstrap", "html5", "scss"],
+    "game_browser": ["three.js", "webgl"],
+    "bundler": "vite",
+    "pkg": "pnpm"
+  },
+  "backend": ["python", "express"],
+  "db": ["sqlite", "postgres-supabase"],
+  "deploy": {
+    "pages": "cloudflare-pages",
+    "worker": "cloudflare-service-worker",
+    "full": "cloudflare-pages+service-worker"
+  },
+  "agents": {
+    "browser": "BrowserOS-neo",
+    "dom": ["snapDOM", "compactDOM", "snapShot", "html2canvas"]
+  },
+  "fmt": "ctecx-instruct-formatter",
+  "ide": {
+    "route": true,
+    "targets": ["global", "ade", "ai-service-provider-ide"]
+  },
+  "llm": {
+    "router": "litellm",
+    "provider": "azure",
+    "env": ["AZURE_API_KEY", "AZURE_API_BASE", "AZURE_API_VERSION"],
+    "model_fmt": "azure/<deployment>",
+    "proxy_cfg": {
+      "model_list": [{
+        "model_name": "vibe-default",
+        "litellm_params": {
+          "model": "azure/<deployment>",
+          "api_key": "os.environ/AZURE_API_KEY",
+          "api_base": "os.environ/AZURE_API_BASE",
+          "api_version": "os.environ/AZURE_API_VERSION"
+        }
+      }]
+    },
+    "sdk": "from litellm import completion; completion(model='azure/<dep>', messages=[...])",
+    "compat": true,
+    "quality": {
+      "mode": "max",
+      "goal": "high-end production quality",
+      "params": {
+        "temperature": 0.3,
+        "top_p": 0.9,
+        "max_tokens": 8192,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "seed": null
+      },
+      "model_pref": [
+        "azure/<flagship-deployment>",
+        "prefer latest GPT-4o / GPT-4.1 / o-series when available"
+      ],
+      "system_boost": [
+        "You are a senior staff engineer and product designer.",
+        "Produce production-ready, polished, complete output.",
+        "Prefer clarity, correctness, accessibility, and modern standards.",
+        "No placeholders, no TODOs, no incomplete stubs unless explicitly asked.",
+        "Match prismic tokens, viewport rules, and Grok-Build scaffold exactly."
+      ],
+      "proxy_cfg_extra": {
+        "litellm_settings": {
+          "drop_params": true,
+          "set_verbose": false,
+          "request_timeout": 120,
+          "num_retries": 3
+        },
+        "model_list_quality": {
+          "model_name": "vibe-max",
+          "litellm_params": {
+            "model": "azure/<flagship-deployment>",
+            "api_key": "os.environ/AZURE_API_KEY",
+            "api_base": "os.environ/AZURE_API_BASE",
+            "api_version": "os.environ/AZURE_API_VERSION",
+            "temperature": 0.3,
+            "max_tokens": 8192,
+            "top_p": 0.9,
+            "timeout": 120
+          }
+        }
+      },
+      "sdk_example": "completion(model='azure/<dep>', messages=[...], temperature=0.3, max_tokens=8192, top_p=0.9)",
+      "rules": [
+        "Always use vibe-max or flagship deployment for build/spec phases",
+        "Never drop below 16px font on inputs (viewport lock)",
+        "Never emit incomplete code when quality=max",
+        "Prefer full files over diffs unless user asks for patch"
+      ]
+    }
+  },
+  "favicon": null,
+  "phases": {
+    "1_grill": {"tool": "GRILL-ME.md", "act": "interview-to-shared-understanding", "out": "decision-tree-resolved"},
+    "2_map": {"tool": "Wayfinder", "act": "chart-map+tickets", "out": "ROADMAP+tickets"},
+    "3_spec": {
+      "def": "GSD",
+      "loop": ["discuss", "plan", "execute", "verify", "ship"],
+      "alt": {"OpenSpec": ["propose", "apply", "archive"], "BMAD": ["analyze", "plan", "solution", "implement"]},
+      "arts": ["CONTEXT.md", "PLAN.md", "SUMMARY.md", "VERIFICATION.md"],
+      "quality": "max"
+    },
+    "4_build": {
+      "stack_select": "auto-by-app-type",
+      "ui": "prismic-tokens",
+      "agents": ["BrowserOS-neo", "dom-capture"],
+      "viewport_lock": true,
+      "quality": "max"
+    },
+    "5_deploy": {"web": "cf-pages", "edge": "cf-sw", "full": "cf-pages+sw"}
+  },
+  "routing": {"global": "/vibe", "ade": "/vibe/ade", "ai_ide": "/vibe/ai"},
+  "build": {
+    "style": "grok-build",
+    "scaffold": {
+      "root": ["index.html", "package.json", "vite.config.ts", "tsconfig.json", "src/", "public/", ".env.example", "README.md"],
+      "src": ["main.tsx", "App.tsx", "routes/", "components/", "hooks/", "lib/", "styles/", "assets/"],
+      "styles": ["_tokens.scss", "_base.scss", "_viewport.scss", "main.scss"],
+      "public": ["favicon.ico", "robots.txt", "manifest.webmanifest"]
+    },
+    "index_html": {
+      "head": [
+        "<meta charset=\"UTF-8\">",
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">",
+        "<meta name=\"theme-color\" content=\"#2BBE8B\">",
+        "<title>{{app_name}}</title>",
+        "<link rel=\"icon\" href=\"/favicon.ico\">"
+      ],
+      "body": ["<div id=\"root\"></div>", "<script type=\"module\" src=\"/src/main.tsx\"></script>"]
+    },
+    "css_viewport": {
+      "file": "src/styles/_viewport.scss",
+      "content": [
+        "/* anti-zoom + modern viewport */",
+        "input, textarea, select { font-size: 16px; }",
+        "@media (hover: none) and (pointer: coarse) {",
+        "  input, textarea, select { font-size: 16px; }",
+        "}",
+        "button, a, [role=\"button\"] { touch-action: manipulation; }",
+        "body {",
+        "  padding: env(safe-area-inset-top) env(safe-area-inset-right)",
+        "           env(safe-area-inset-bottom) env(safe-area-inset-left);",
+        "}"
+      ]
+    },
+    "css_tokens": {
+      "file": "src/styles/_tokens.scss",
+      "content": [
+        ":root {",
+        "  --accent: #2BBE8B;",
+        "  --ink: #151515;",
+        "  --ink-soft: #505050;",
+        "  --bg: #FFFFFF;",
+        "  --muted: #A4A4A4;",
+        "  --line: rgba(238,238,238,1);",
+        "  --space-1: 4px; --space-2: 8px; --space-3: 16px; --space-4: 24px;",
+        "  --space-5: 32px; --space-6: 48px; --space-7: 64px; --space-8: 96px;",
+        "  --radius-sm: 2px; --radius-md: 8px; --radius-lg: 12px; --radius-pill: 999px;",
+        "  --max-w: 1280px;",
+        "}"
+      ]
+    },
+    "scripts": {
+      "dev": "vite",
+      "build": "tsc -b && vite build",
+      "preview": "vite preview",
+      "lint": "eslint . --ext ts,tsx",
+      "deploy:pages": "wrangler pages deploy dist",
+      "deploy:full": "wrangler pages deploy dist && wrangler deploy"
+    },
+    "env_example": [
+      "AZURE_API_KEY=",
+      "AZURE_API_BASE=",
+      "AZURE_API_VERSION=2024-08-01-preview",
+      "VITE_API_URL=",
+      "DATABASE_URL="
+    ],
+    "checks": [
+      "viewport meta present",
+      "input font-size >= 16px",
+      "no maximum-scale=1",
+      "safe-area env() used",
+      "touch-action: manipulation on interactive",
+      "prismic tokens applied",
+      "LiteLLM Azure env ready"
+    ]
+  },
+  "quantize": {
+    "style": "min-token",
+    "rules": ["no-redundancy", "abbr-keys", "array-prefer", "default-GSD"]
+  }
+}
