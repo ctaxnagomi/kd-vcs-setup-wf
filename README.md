@@ -49,6 +49,24 @@ body { padding: env(safe-area-inset-*); }
 
 Model alias: `vibe-max` → flagship Azure deployment.
 
+## Local Data Container (privacy)
+
+When using the **cloud Azure API key**, user local data and inputs stay on-device:
+
+```
+.vibe/local/          ← vibe-local-vault
+├── inputs/
+├── uploads/
+├── session-cache/
+├── dom-snapshots/
+└── env.local
+```
+
+- Azure/LiteLLM receives **prompt text only** — no filesystem sync
+- Never send raw `.env`, vault paths, keys, or unapproved uploads
+- API key = cloud auth only; it does **not** open the local vault
+- `.vibe/local/` is gitignored
+
 ## Phase loop
 
 ```
