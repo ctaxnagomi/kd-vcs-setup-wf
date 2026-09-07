@@ -1,13 +1,8 @@
 {
   "id": "vibe-code-session",
-  "ver": "2.1",
+  "ver": "2.2",
   "mode": "grok-build",
-  "tok": {
-    "json": 2342,
-    "md": 941,
-    "unit": "approx-gpt4o",
-    "method": "chars/4|words*1.3"
-  },
+  "tok": {"json": 2768, "md": 1191, "unit": "approx-gpt4o", "method": "chars/4|words*1.3"},
   "def": "GSD",
   "spec_kits": ["GSD", "OpenSpec", "BMAD"],
   "learn": ["GRILL-ME.md", "Wayfinder"],
@@ -90,10 +85,7 @@
         "frequency_penalty": 0.0,
         "seed": null
       },
-      "model_pref": [
-        "azure/<flagship-deployment>",
-        "prefer latest GPT-4o / GPT-4.1 / o-series when available"
-      ],
+      "model_pref": ["azure/<flagship-deployment>", "prefer latest GPT-4o / GPT-4.1 / o-series when available"],
       "system_boost": [
         "You are a senior staff engineer and product designer.",
         "Produce production-ready, polished, complete output.",
@@ -131,6 +123,33 @@
       ]
     }
   },
+  "privacy": {
+    "mode": "local-first",
+    "goal": "user local data + inputs never leave machine unless explicitly scoped for LLM",
+    "container": {
+      "name": "vibe-local-vault",
+      "path": ".vibe/local/",
+      "contents": ["inputs/", "uploads/", "session-cache/", "dom-snapshots/", "env.local"],
+      "gitignore": true,
+      "encrypt_optional": true
+    },
+    "rules": [
+      "Never put secrets or full local files into LLM prompts by default",
+      "Only send redacted/scoped excerpts the task requires",
+      "Azure/LiteLLM receives prompt text only — no automatic filesystem sync",
+      "BrowserOS-neo / DOM capture stays local unless user opts in",
+      "API key is cloud auth only; it does not grant access to local vault"
+    ],
+    "llm_boundary": {
+      "send": ["task prompt", "explicit attachments user approved", "redacted context"],
+      "never_send": ["raw .env", "full local vault", "API keys", "unapproved uploads", "private session-cache"]
+    },
+    "scaffold": {
+      "dirs": [".vibe/local/inputs", ".vibe/local/uploads", ".vibe/local/session-cache", ".vibe/local/dom-snapshots"],
+      "files": [".vibe/local/README.md", ".vibe/local/.gitkeep"],
+      "gitignore_entries": [".vibe/local/", ".env", ".env.local", "*.pem", "*.key"]
+    }
+  },
   "favicon": null,
   "phases": {
     "1_grill": {"tool": "GRILL-ME.md", "act": "interview-to-shared-understanding", "out": "decision-tree-resolved"},
@@ -155,7 +174,7 @@
   "build": {
     "style": "grok-build",
     "scaffold": {
-      "root": ["index.html", "package.json", "vite.config.ts", "tsconfig.json", "src/", "public/", ".env.example", "README.md"],
+      "root": ["index.html", "package.json", "vite.config.ts", "tsconfig.json", "src/", "public/", ".env.example", "README.md", ".vibe/", ".gitignore"],
       "src": ["main.tsx", "App.tsx", "routes/", "components/", "hooks/", "lib/", "styles/", "assets/"],
       "styles": ["_tokens.scss", "_base.scss", "_viewport.scss", "main.scss"],
       "public": ["favicon.ico", "robots.txt", "manifest.webmanifest"]
@@ -224,7 +243,10 @@
       "safe-area env() used",
       "touch-action: manipulation on interactive",
       "prismic tokens applied",
-      "LiteLLM Azure env ready"
+      "LiteLLM Azure env ready",
+      "local vault present (.vibe/local)",
+      ".vibe/local in .gitignore",
+      "no local vault path in LLM prompts by default"
     ]
   },
   "quantize": {
